@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chicken OS</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif}
+body{background:#111;color:white}
+#boot{position:absolute;inset:0;background:#111;display:flex;align-items:center;justify-content:center;z-index:10}
+.bootbox{text-align:center;width:420px}.chicken{font-size:100px;line-height:1}
+h1{font-size:42px;margin:8px 0}.boottext{color:#bbb;margin:15px}
+.bar{height:12px;background:#333;border-radius:20px;overflow:hidden}.fill{height:100%;width:0;background:#fff;transition:width .2s}
+#login{position:absolute;inset:0;display:none;background:linear-gradient(135deg,#f7d774,#d99532);align-items:center;justify-content:center}
+.loginbox{background:#fff;color:#222;padding:35px;border-radius:20px;text-align:center;width:330px;box-shadow:0 15px 50px #0006}
+.avatar{font-size:75px}.loginbox input{width:100%;padding:12px;border:1px solid #bbb;border-radius:8px;margin:12px 0}.loginbox button{width:100%;padding:12px;border:0;border-radius:8px;background:#222;color:white;font-size:16px;cursor:pointer}
+#error{color:#c33;height:18px}
+#desktop{position:absolute;inset:0;display:none;background:linear-gradient(135deg,#f7d774,#c88628)}
+.wallpaper{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:90px;opacity:.18}
+.icons{position:absolute;top:20px;left:20px;display:flex;flex-direction:column;gap:20px}.icon{width:75px;text-align:center;cursor:pointer;text-shadow:0 2px 4px #0007}.icon span{font-size:38px;display:block}.icon label{font-size:13px}
+.taskbar{position:absolute;bottom:0;left:0;right:0;height:52px;background:#171717dd;display:flex;align-items:center;padding:6px 10px;gap:10px}.start{font-size:25px;background:#333;border:0;color:white;border-radius:8px;padding:5px 10px;cursor:pointer}.clock{margin-left:auto;color:#ddd}
+.window{position:absolute;width:520px;height:350px;background:#fafafa;color:#222;border-radius:12px;box-shadow:0 20px 60px #0008;left:50%;top:50%;transform:translate(-50%,-55%);display:none;overflow:hidden}
+.titlebar{height:42px;background:#222;color:#fff;display:flex;align-items:center;padding:0 12px}.titlebar b{flex:1}.close{border:0;background:#c44;color:white;border-radius:5px;padding:5px 10px;cursor:pointer}
+.content{padding:18px;height:calc(100% - 42px);overflow:auto}.file{padding:12px;border-bottom:1px solid #ddd}
+#startmenu{position:absolute;bottom:58px;left:10px;background:#222;color:white;width:260px;border-radius:12px;padding:15px;display:none;box-shadow:0 10px 40px #0008}.startitem{padding:12px;border-radius:8px;cursor:pointer}.startitem:hover{background:#444}
+</style>
+</head>
+<body>
+<div id="boot">
+  <div class="bootbox">
+    <div class="chicken">🐔</div>
+    <h1>CHICKEN OS</h1>
+    <div class="boottext" id="boottext">Starting Chicken OS...</div>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+  </div>
+</div>
+
+<div id="login">
+  <div class="loginbox">
+    <div class="avatar">🐔</div>
+    <h1>Chicken</h1>
+    <p>Welcome to Chicken OS</p>
+    <input id="password" type="password" placeholder="Password (anything works)">
+    <div id="error"></div>
+    <button onclick="login()">Log in</button>
+  </div>
+</div>
+
+<div id="desktop">
+  <div class="wallpaper">🐔</div>
+  <div class="icons">
+    <div class="icon" onclick="openWindow('files')"><span>📁</span><label>Files</label></div>
+    <div class="icon" onclick="openWindow('browser')"><span>🌐</span><label>Chicken Browser</label></div>
+    <div class="icon" onclick="openWindow('settings')"><span>⚙️</span><label>Settings</label></div>
+    <div class="icon" onclick="openWindow('trash')"><span>🗑️</span><label>Trash</label></div>
+    <div class="icon" onclick="openWindow('store')"><span>🛍️</span><label>App Store</label></div>
+  </div>
+  <div id="installedIcons" class="icons" style="left:115px;top:20px"></div>
+
+  <div id="files" class="window">
+    <div class="titlebar"><b>📁 Files</b><button class="close" onclick="closeWindow('files')">X</button></div>
+    <div class="content"><div class="file">📄 welcome.txt</div><div class="file">🐣 chickens</div><div class="file gamefolder" onclick="openWindow('games')">🎮 games <small>— double-click to open</small></div><div class="file">🖼️ chicken_wallpaper.png</div></div>
+  </div>
+
+  <div id="browser" class="window">
+    <div class="titlebar"><b>🌐 Chicken Browser</b><button class="close" onclick="closeWindow('browser')">X</button></div>
+    <div class="content"><h2>Welcome to the Chicken Web!</h2><p>This is a fake browser inside Chicken OS.</p><button onclick="alert('🐔 The chicken says hello!')">Visit Chicken.com</button></div>
+  </div>
+
+  <div id="settings" class="window">
+    <div class="titlebar"><b>⚙️ Settings</b><button class="close" onclick="closeWindow('settings')">X</button></div>
+    <div class="content"><h2>Chicken OS Settings</h2><p>Theme: Golden Chicken</p><button onclick="toggleTheme()">Change wallpaper</button></div>
+  </div>
+
+
+
+  <div id="games" class="window">
+    <div class="titlebar"><b>🎮 Games</b><button class="close" onclick="closeWindow('games')">X</button></div>
+    <div class="content">
+      <h2>Chicken Games</h2>
+      <p>Choose a game to launch:</p>
+      <button onclick="playEggCatcher()">🥚 Egg Catcher</button>
+      <button onclick="playChickenClicker()">🐔 Chicken Clicker</button>
+      <div id="gamearea" style="margin-top:18px"></div>
+    </div>
+  </div>
+
+  <div id="notes" class="window">
+    <div class="titlebar"><b>📝 Chicken Notes</b><button class="close" onclick="closeWindow('notes')">X</button></div>
+    <div class="content"><h2>Chicken Notes</h2><textarea style="width:100%;height:180px" placeholder="Type your notes here..."></textarea></div>
+  </div>
+
+  <div id="paint" class="window">
+    <div class="titlebar"><b>🎨 Chicken Paint</b><button class="close" onclick="closeWindow('paint')">X</button></div>
+    <div class="content"><h2>Chicken Paint</h2><canvas id="paintCanvas" width="450" height="180" style="border:1px solid #aaa;background:white"></canvas><p>Drag your mouse on the canvas to draw.</p></div>
+  </div>
+
+  <div id="ai" class="window">
+    <div class="titlebar"><b>🐔 Chicken AI</b><button class="close" onclick="closeWindow('ai')">X</button></div>
+    <div class="content"><h2>Chicken AI</h2><p id="aiReply">Cluck! Ask me something.</p><input id="aiInput" placeholder="Say something..." style="padding:8px;width:75%"><button onclick="chickenAI()">Send</button></div>
+  </div>
+
+  <div id="store" class="window">
+    <div class="titlebar"><b>🛍️ Chicken App Store</b><button class="close" onclick="closeWindow('store')">X</button></div>
+    <div class="content">
+      <h2>Chicken App Store</h2>
+      <p>Install apps for your fake computer.</p>
+      <div class="file"><b>🎮 Chicken Games</b><br><button onclick="openWindow('games')">Open</button></div>
+      <div class="file"><b>📝 Chicken Notes</b><br><button onclick="installApp('notes','📝','Chicken Notes')">Install</button></div>
+      <div class="file"><b>🎨 Chicken Paint</b><br><button onclick="installApp('paint','🎨','Chicken Paint')">Install</button></div>
+      <div class="file"><b>🐔 Chicken AI</b><br><button onclick="installApp('ai','🐔','Chicken AI')">Install</button></div>
+    </div>
+  </div>
+  <div id="trash" class="window">
+    <div class="titlebar"><b>🗑️ Trash</b><button class="close" onclick="closeWindow('trash')">X</button></div>
+    <div class="content"><h2>Trash is empty</h2><p>Nothing has been deleted. 🐔</p></div>
+  </div>
+
+  <div id="startmenu">
+    <h2>🐔 Chicken OS</h2>
+    <div class="startitem" onclick="openWindow('files');hideStart()">📁 Files</div>
+    <div class="startitem" onclick="openWindow('browser');hideStart()">🌐 Browser</div>
+    <div class="startitem" onclick="openWindow('settings');hideStart()">⚙️ Settings</div>
+    <div class="startitem" onclick="restart()">🔄 Restart</div>
+    <div class="startitem" onclick="shutdown()">⏻ Shut down</div>
+  </div>
+
+  <div class="taskbar">
+    <button class="start" onclick="toggleStart()">🐔</button>
+    <div>Chicken OS</div><div class="clock" id="clock"></div>
+  </div>
+</div>
+
+<script>
+let bootProgress=0;
+const fill=document.getElementById('fill'), boottext=document.getElementById('boottext');
+const bootTimer=setInterval(()=>{
+  bootProgress+=4; fill.style.width=bootProgress+'%';
+  if(bootProgress<35) boottext.textContent='Checking chicken coop...';
+  else if(bootProgress<70) boottext.textContent='Loading feathers...';
+  else boottext.textContent='Preparing desktop...';
+  if(bootProgress>=100){
+    clearInterval(bootTimer);
+    setTimeout(()=>{document.getElementById('boot').style.display='none';document.getElementById('login').style.display='flex'},500);
+  }
+},100);
+
+function login(){
+  document.getElementById('login').style.display='none';
+  document.getElementById('desktop').style.display='block';
+}
+function openWindow(id){document.getElementById(id).style.display='block'}
+function closeWindow(id){document.getElementById(id).style.display='none'}
+function toggleStart(){let x=document.getElementById('startmenu');x.style.display=x.style.display==='block'?'none':'block'}
+function hideStart(){document.getElementById('startmenu').style.display='none'}
+function restart(){location.reload()}
+function shutdown(){document.getElementById('desktop').innerHTML='<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:35px;background:#111">🐔 Chicken OS is shut down.<br></div>'}
+function playEggCatcher(){
+  const a=document.getElementById('gamearea');
+  a.innerHTML='<h3>🥚 Egg Catcher</h3><p>Click the falling egg before it gets away!</p><button id="egg" style="font-size:35px;position:relative">🥚</button><p>Score: <span id="score">0</span></p>';
+  let score=0;
+  const egg=document.getElementById('egg'), scoreEl=document.getElementById('score');
+  egg.onclick=()=>{score++;scoreEl.textContent=score;egg.style.marginLeft=Math.random()*300+'px';egg.style.marginTop=Math.random()*100+'px'};
+}
+function playChickenClicker(){
+  const a=document.getElementById('gamearea');
+  a.innerHTML='<h3>🐔 Chicken Clicker</h3><button id="chick" style="font-size:70px">🐔</button><p>Chickens: <span id="chickscore">0</span></p>';
+  let score=0;
+  document.getElementById('chick').onclick=()=>{score++;document.getElementById('chickscore').textContent=score};
+}
+function installApp(id, icon, name){
+  const container=document.getElementById('installedIcons');
+  if(document.getElementById('desktop-'+id)){
+    alert(name+' is already installed!');
+    return;
+  }
+  const el=document.createElement('div');
+  el.className='icon';
+  el.id='desktop-'+id;
+  el.innerHTML='<span>'+icon+'</span><label>'+name+'</label>';
+  el.onclick=()=>openWindow(id);
+  container.appendChild(el);
+  localStorage.setItem('chickenApp-'+id,'1');
+  alert(name+' was installed on the desktop!');
+}
+
+function loadInstalledApps(){
+  const apps=[
+    ['notes','📝','Chicken Notes'],
+    ['paint','🎨','Chicken Paint'],
+    ['ai','🐔','Chicken AI']
+  ];
+  apps.forEach(([id,icon,name])=>{
+    if(localStorage.getItem('chickenApp-'+id)) installAppSilently(id,icon,name);
+  });
+}
+function installAppSilently(id,icon,name){
+  const container=document.getElementById('installedIcons');
+  if(document.getElementById('desktop-'+id)) return;
+  const el=document.createElement('div');
+  el.className='icon';
+  el.id='desktop-'+id;
+  el.innerHTML='<span>'+icon+'</span><label>'+name+'</label>';
+  el.onclick=()=>openWindow(id);
+  container.appendChild(el);
+}
+function chickenAI(){
+  const text=document.getElementById('aiInput').value.toLowerCase();
+  let reply='🐔 Cluck! That sounds interesting!';
+  if(text.includes('hello')||text.includes('hi')) reply='🐔 Hello! Welcome to Chicken AI!';
+  else if(text.includes('chicken')) reply='🐔 Chickens are the official mascot of Chicken OS!';
+  else if(text.includes('name')) reply='🐔 My name is Chicken AI.';
+  document.getElementById('aiReply').textContent=reply;
+}
+function setupPaint(){
+  const c=document.getElementById('paintCanvas');
+  if(!c)return;
+  const ctx=c.getContext('2d'); let drawing=false;
+  c.onmousedown=()=>drawing=true; c.onmouseup=()=>drawing=false;
+  c.onmouseleave=()=>drawing=false;
+  c.onmousemove=e=>{
+    if(!drawing)return;
+    const r=c.getBoundingClientRect();
+    ctx.fillRect(e.clientX-r.left,e.clientY-r.top,4,4);
+  };
+}
+function toggleTheme(){
+  document.getElementById('desktop').style.background='linear-gradient(135deg,#b7e3ff,#5577aa)';
+}
+function updateClock(){document.getElementById('clock').textContent=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
+setInterval(updateClock,1000);updateClock();
+loadInstalledApps();
+setTimeout(setupPaint,300);
+</script>
+</body>
+</html>
